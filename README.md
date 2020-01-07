@@ -1,8 +1,10 @@
 # taEstim
 
-Node Trace file Inforamtion
+Trace file location: data/
 
-File name 'node-#.txt'
+File name: 'node-#.txt'
+
+-------------------------------------------------------------------------
 
 Colum information (unit)
 
