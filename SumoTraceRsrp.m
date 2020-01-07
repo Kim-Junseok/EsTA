@@ -132,7 +132,7 @@ for userInd = 1:length(userTraceInter)
         % Timing advance
         taGranu = 16 * 64 / 2^(mu);
         unitDist = taGranu / (480 * 10^3 * 4096) * 10^6 * 3 * 10^2 / 2;
-        taRegion = floor(threeDimDistPerGnbs(connecGnbInd) / uintDist);
+        taRegion = floor(threeDimDistPerGnbs(connecGnbInd) / unitDist);
         
         userTraceInter(userInd).location(timeInd, 12) = taRegion;
         
