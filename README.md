@@ -4,7 +4,7 @@ Node Trace file Inforamtion
 
 File name 'node-#.txt'
 
-Colum information (unit
+Colum information (unit) \n
 1: time (ns)
 2: Position.x (m)
 3: Position.y (m)
