@@ -29,9 +29,20 @@ end
 figure(1)
 for nodeInd=1:nodeNum
     plot(userTrace(nodeInd).location(:,2), userTrace(nodeInd).location(:,3), 'o')
+    xlabel('X-axis (m)', 'FontSize', 11, 'FontName', 'Arial');
+    ylabel('Y-axis (m)', 'FontSize', 11, 'FontName', 'Arial');
     hold on
 end
 
+% figure(2)
+% for nodeInd=temp+1:nodeNum
+%     plot(userTrace(nodeInd).location(:,2), userTrace(nodeInd).location(:,3), 'o')
+%     xlabel('X-axis (m)', 'FontSize', 11, 'FontName', 'Arial');
+%     ylabel('Y-axis (m)', 'FontSize', 11, 'FontName', 'Arial');
+%     hold on
+% end
+
+%% Interpolation
 
 step = 5; % 5 ms
 

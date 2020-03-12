@@ -1,3 +1,5 @@
+addpath('channel\')
+
 LOS
 NLOS
 
@@ -16,7 +18,8 @@ global gnbAntHeight; gnbAntHeight = 25; % gNB antenna height
 ueNoiseFig = 9; % Noise figure (dB)
 nRbs = 20; % number of resource blocks for SS block
 noisePsd = 10^((-174-30)*0.1) * 10^(ueNoiseFig*0.1);
-scs = 15; % kHz
+scs = 60; % kHz
+numCells = 7; % No. of cells
 
 switch(scs)
     case 15
@@ -44,7 +47,12 @@ gnbLocation = [[center, 25];
     center(1)+isd/2*sqrt(3), center(2)+isd/2, 25;
     center(1)+isd/2*sqrt(3), center(2)-isd/2, 25]; % Compare 7 cells
 
-
+% Initialize trace for each cell
+for ind=1:numCells
+    cellTrace(ind).data = [];
+    cellTrace(ind).los = [];
+    cellTrace(ind).nlos = [];
+end
 
 for userInd = 1:length(userTraceInter)
     chInd = randi(40000, length(gnbLocation), 1); % Channel index for each gNB
@@ -114,7 +122,7 @@ for userInd = 1:length(userTraceInter)
             end
             rxPsd = rxPsd .* 10.^(fastFading*0.1);
             
-            % convert PSD [W/Hz] to linear power [W] for the single RE
+            % Convert PSD [W/Hz] to linear power [W] for the single RE
             powerTxW = rxPsd * scs;
             rsrpDbm = 10 * log10(1000 * sum(powerTxW) / nRbs);
             
@@ -122,12 +130,12 @@ for userInd = 1:length(userTraceInter)
         end
         
         %connecGnbInd = find(rsrpDbmPerGnbs==max(rsrpDbmPerGnbs)); %Connect with highest signal strength gNB
-        connecGnbInd = find(threeDimDistPerGnbs==min(threeDimDistPerGnbs)); % Coneect with cloest gNB
+        connecGnbInd = find(threeDimDistPerGnbs==min(threeDimDistPerGnbs)); % Coneect with closest gNB
         userTraceInter(userInd).location(timeInd, 5:7) = userTraceInter(userInd).velocity(timeInd, 2:4);
         userTraceInter(userInd).location(timeInd, 8) = threeDimDistPerGnbs(connecGnbInd);
         userTraceInter(userInd).location(timeInd, 9) = losPerGnbs(connecGnbInd);
         userTraceInter(userInd).location(timeInd, 10) = rsrpDbmPerGnbs(connecGnbInd);
-        userTraceInter(userInd).location(timeInd, 11) = connecGnbInd;    
+        userTraceInter(userInd).location(timeInd, 11) = connecGnbInd;
         
         % Timing advance
         taGranu = 16 * 64 / 2^(mu);
@@ -136,6 +144,19 @@ for userInd = 1:length(userTraceInter)
         
         userTraceInter(userInd).location(timeInd, 12) = taRegion;
         
+        % Trace for each cell
+        traceInd = size(cellTrace(connecGnbInd).data, 1) + 1;
+        cellTrace(connecGnbInd).data(traceInd, :) = userTraceInter(userInd).location(timeInd, :);
+        
+        % LoS or NLoS
+        if cellTrace(connecGnbInd).data(traceInd, 9) == 1 % LoS
+            dataInd = size(cellTrace(connecGnbInd).los, 1) + 1;
+            cellTrace(connecGnbInd).los(dataInd,:) = cellTrace(connecGnbInd).data(traceInd, :);
+        else % NLoS
+            dataInd = size(cellTrace(connecGnbInd).nlos, 1) + 1;
+            cellTrace(connecGnbInd).nlos(dataInd,:) = cellTrace(connecGnbInd).data(traceInd, :);
+        end
+        
     end
     filename = strcat ('node-', num2str(userInd),'.txt');
     fileID = fopen(filename,'w');
@@ -143,87 +164,23 @@ for userInd = 1:length(userTraceInter)
     fclose(fileID);
 end
 
+%% Trace file for each cell
 
-% distUeGnbLos = nonzeros(distUeGnbLos)';
-% distUeGnbNlos = nonzeros(distUeGnbNlos)';
-% snrUeGnbLos = nonzeros(mean(snrUeGnbLos))';
-% snrUeGnbNlos = nonzeros(mean(snrUeGnbNlos))';
-%
-% figure(1)
-% plot(distUeGnbLos, snrUeGnbLos, 'b*')
-% hold on
-% plot(distUeGnbNlos(1:length(distUeGnbLos)), snrUeGnbNlos(1:length(distUeGnbLos)), 'r*')
-%
-% len = length(distUeGnbLos);
-% taOneLos = [];
-% taTwoLos = [];
-% taThreeLos = [];
-% taOneNlos = [];
-% taTwoNlos = [];
-% taThreeNlos = [];
-%
-% for index = 1:len
-%     if distUeGnbLos(index) <= 78
-%         taOneLos = [taOneLos, snrUeGnbLos(index)];
-%     elseif distUeGnbLos(index) <= 156
-%         taTwoLos = [taTwoLos, snrUeGnbLos(index)];
-%     else
-%         taThreeLos = [taThreeLos, snrUeGnbLos(index)];
-%     end
-%
-%     if distUeGnbNlos(index) <= 78
-%         taOneNlos = [taOneNlos, snrUeGnbNlos(index)];
-%     elseif distUeGnbNlos(index) <= 156
-%         taTwoNlos = [taTwoNlos, snrUeGnbNlos(index)];
-%     else
-%         taThreeNlos = [taThreeNlos, snrUeGnbNlos(index)];
-%     end
-% end
-%
-% taOne = [taOneLos taOneNlos];
-% taTwo = [taTwoLos taTwoNlos];
-% taThree = [taThreeLos taThreeNlos];
-%
-% num = 10;
-%
-% % figure(2)
-% % [p,x] = hist(taOneLos); plot(x,p/sum(p)); %PDF
-% % hold on
-% % [p,x] = hist(taTwoLos); plot(x,p/sum(p)); %PDF
-% % [p,x] = hist(taThreeLos); plot(x,p/sum(p)); %PDF
-%
-% % figure(3)
-% % [p,x] = hist(taOne,num); plot(x,p/sum(p)); %PDF
-% % hold on
-% % [p,x] = hist(taTwo,num); plot(x,p/sum(p)); %PDF
-% % [p,x] = hist(taThree,num); plot(x,p/sum(p)); %PDF
-%
-% figure(4)
-% histfit(taOneLos);
-% hold on
-% histfit(taTwoLos);
-% histfit(taThreeLos);
-%
-% figure(5)
-% histfit(taOneNlos);
-% hold on
-% histfit(taTwoNlos);
-% histfit(taThreeNlos);
-%
-% pdTaOneLos = fitdist(taOneLos','Normal');
-% pdTaTwoLos = fitdist(taTwoLos','Normal');
-% pdTaThreeLos = fitdist(taThreeLos','Normal');
-% pdTaOneNlos = fitdist(taOneNlos','Normal');
-% pdTaTwoNlos = fitdist(taTwoNlos','Normal');
-% pdTaThreeNlos = fitdist(taThreeNlos','Normal');
-%
-% meanLos = [pdTaOneLos.mu pdTaTwoLos.mu pdTaThreeLos.mu]
-% stdLos = [pdTaOneLos.std pdTaTwoLos.std pdTaThreeLos.std]
-% meanNlos = [pdTaOneNlos.mu pdTaTwoNlos.mu pdTaThreeNlos.mu]
-% stdNlos = [pdTaOneNlos.std pdTaTwoNlos.std pdTaThreeNlos.std]
-%
-% % figure(6)
-% % histfit(taOne, num, 'kernel');
-% % hold on
-% % histfit(taTwo, num, 'kernel');
-% % histfit(taThree, num, 'kernel');
+for ind=1:numCells
+    filename = strcat ('cell-', num2str(ind), '.txt');
+    fileID = fopen(filename,'w');
+    fprintf(fileID,'%f %f %f %f %f %f %f %f %d %f %d %d \n',cellTrace(ind).data');
+    fclose(fileID);
+    
+    filename = strcat ('cell-', num2str(ind),'-los.txt');
+    fileID = fopen(filename,'w');
+    fprintf(fileID,'%f %f %f %f %f %f %f %f %d %f %d %d \n',cellTrace(ind).los');
+    fclose(fileID);
+    
+    filename = strcat ('cell-', num2str(ind),'-nlos.txt');
+    fileID = fopen(filename,'w');
+    fprintf(fileID,'%f %f %f %f %f %f %f %f %d %f %d %d \n',cellTrace(ind).nlos');
+    fclose(fileID);
+end
+
+
