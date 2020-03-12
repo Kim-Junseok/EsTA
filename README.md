@@ -1,4 +1,4 @@
-# taEstim
+# Estimation of Timing Advance (EsTA)
 
 Trace file location: data/
 
