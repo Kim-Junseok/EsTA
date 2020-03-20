@@ -1,8 +1,11 @@
 # Estimation of Timing Advance (EsTA)
 
-##1. Data File
+## 1. Data Files
+- Location
+- File name
+- Colum information (unit)
 
-##2. 
+## 2. Codes
 
 Trace file location: data-#(subcarrier spacing)/
 
