@@ -18,9 +18,6 @@
             - DNN: comment out the codes
             - DNN with timing error limit values: default
 ## 3. MATLAB Files
-      - Objective
-            - Obtain the Data Files from SUMO traces
-            - Test based on the probability characteristics
 ### - SumoTraceIntp.m
       - Read SUMO traces from the MATLAB data file named 'berlin-trace-100.mat'
       - Organize the traces by each node
