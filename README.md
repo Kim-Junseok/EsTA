@@ -2,7 +2,7 @@
 
 ## 1. Data Files
 ### - Location and file name
-      - data-#(subcarrier spacing)/node-#.txt
+#### - data-#(subcarrier spacing)/node-#.txt
 ### - Colum information (unit)
       - 1: time (ns)
       - 2: Position.x (m), 3: Position.y (m), 4: Position.z (m)
