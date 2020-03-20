@@ -1,6 +1,10 @@
 # Estimation of Timing Advance (EsTA)
 
-Trace file location: data-subcarrier spacing/
+##1. Data File
+
+##2. 
+
+Trace file location: data-#(subcarrier spacing)/
 
 File name: 'node-#.txt'
 
